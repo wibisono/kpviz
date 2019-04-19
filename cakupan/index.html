@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <title>Visualisasi cakupan sumber data Kawal Pemilu </title>
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+  <script type="text/javascript">
+
+      google.charts.load('current', {
+        'packages': ['corechart']
+      });
+      google.charts.setOnLoadCallback(render);
+
+
+    function getKP(id){
+      return $.getJSON('https://kawal-c1.appspot.com/api/c/'+id + '?'+ new Date().getTime());
+    }
+
+    function render() {
+        getKP(0).then(provinces => prepareTable(provinces));
+    }
+
+    function prepareTable(provinces){
+        let persen = function (a, b) {
+            var p = b  ? Math.round(a / b * 10000) / 100 : 0
+            return p;
+        };
+        var headers = provinces.children;
+        var votes   = provinces.data;
+        var bubbleData = [['ID', 'Wilayah', 'Cakupan', 'Beda suara 01-02', '# DPT']];
+        var xTicksData  = [{v:0, f:''}];
+
+        for(var i=0;i<headers.length;i++){
+           var vd = votes[headers[i][0]].sum;
+           var pas1 = vd.pas1 ? vd.pas1 : 0; 
+           var pas2 = vd.pas2 ? vd.pas2 : 0; 
+           var cakupan = vd.cakupan? vd.cakupan: 0;
+           var name = headers[i][1];
+           var ndpt = headers[i][2];
+
+           bubbleData.push([
+               name,
+               i+1,
+               persen(cakupan, ndpt),
+               pas1 - pas2,
+               ndpt
+           ]);
+
+            xTicksData.push({ v: i+1, f: ''});
+        }
+
+        xTicksData.push({v: headers.length, f:''});
+
+        drawSeriesChart(bubbleData, xTicksData);
+
+    }
+    function drawSeriesChart(bubbleData, xTicksData) {
+
+        var data = google.visualization.arrayToDataTable(bubbleData);
+
+        var options = {
+          title: 'Pilpres 2019',
+          theme: 'maximized',
+          colorAxis: {colors: ['#1a9850', '#f46d43']},
+          vAxis: {
+            title: 'Coverage',
+            minValue: 0,
+          },
+          hAxis: {
+            title: 'Wilayah',
+            ticks: xTicksData
+          },
+          bubble: {
+            textStyle: {
+              fontSize: 11
+            }
+          }
+        };
+
+        var chart = new google.visualization.BubbleChart(document.getElementById('series_chart_div'));
+        chart.draw(data, options);
+      }
+
+  </script>
+</head>
+
+<body>
+    <div id="series_chart_div" style="width: 1000px; height: 500px;"></div>
+</body>
+
+
+</html>
