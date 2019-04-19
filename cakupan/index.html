@@ -43,14 +43,14 @@
            var pas2 = vd.pas2 ? vd.pas2 : 0; 
            var cakupan = vd.cakupan? vd.cakupan: 0;
            var name = headers[i][1];
-           var ndpt = headers[i][2];
+           var ntps = headers[i][2];
 
            bubbleData.push([
                name,
                i+1,
-               persen(cakupan, ndpt),
+               persen(cakupan, ntps),
                pas1 - pas2,
-               ndpt
+               ntps
            ]);
 
             xTicksData.push({ v: i+1, f: ''});
