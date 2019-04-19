@@ -1,6 +1,9 @@
 # Kawal Pemilu Visualization
 
-Visualization : https://wibisono.github.io/kpviz/
+Choropleth    : Map visualisation of vote difference, reds are 01, green 02 https://wibisono.github.io/kpviz/
+
+Bubble Chart  : Indicator of volunteer activity, how much voting booth have been covered.     
+                https://wibisono.github.io/kpviz/cakupan/
 
 Data from     : https://kawalpemilu.org
 
