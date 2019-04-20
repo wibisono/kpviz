@@ -74,6 +74,7 @@
   </style>
   <script type="text/javascript">
       var singkatan = {
+        "Luar Negeri" : "LN",
         "JAWA BARAT" : "JABAR",
         "JAWA TENGAH" : "JATENG",
         "JAWA TIMUR" : "JATIM",
@@ -84,6 +85,7 @@
         "SUMATERA BARAT" : "SUMBAR",
         "SULAWESI SELATAN" : "SULSEL",
         "SULAWESI UTARA" : "SULUT",
+        "KALIMANTAN UTARA" : "KALUT",
         "KALIMANTAN SELATAN" : "KALSEL",
         "KALIMANTAN BARAT" : "KALBAR",
         "KALIMANTAN TENGAH" : "KALTENG",
@@ -120,6 +122,7 @@
         var votes   = provinces.data;
         var bubbleData = [['ID', 'Wilayah', 'Cakupan', 'Beda suara 01-02', '# TPS']];
         var xTicksData  = [{v:0, f:''}];
+        var maxCakupan = 0;
 
         for(var i=0;i<headers.length;i++){
            var vd = votes[headers[i][0]].sum;
@@ -128,38 +131,46 @@
            var cakupan = vd.cakupan? vd.cakupan: 0;
            var name = disingkat(headers[i][1]);
            var ntps = headers[i][2];
-
+           var pCakupan = persen(cakupan, ntps); 
+           if(pCakupan > maxCakupan ) {
+                maxCakupan = pCakupan;
+           }
            bubbleData.push([
                name,
                i+1,
-               persen(cakupan, ntps),
+               pCakupan,
                pas1 - pas2,
                ntps
            ]);
-
-           xTicksData.push({ v: i+1, f: headers[i][1]});
+           xTicksData.push({ v: i+1, f: name});
         }
 
-        xTicksData.push({v: headers.length, f:''});
+        xTicksData.push({v: headers.length + 1, f:''});
 
-        drawSeriesChart(bubbleData, xTicksData, headers);
+        drawSeriesChart(bubbleData, xTicksData, headers, maxCakupan+10);
     }
 
-    function drawSeriesChart(bubbleData, xTicksData, headers) {
+    function drawSeriesChart(bubbleData, xTicksData, headers, maxY) {
 
         var data = google.visualization.arrayToDataTable(bubbleData);
 
         var options = {
           title: 'Cakupan TPS per propinsi, Kawal Pemilu 2019',
-          theme: 'maximized',
+          chartArea: {width: '85%', height: '70%'},
+          legend: {position: 'out'},
+          titlePosition: 'out', 
+          axisTitlesPosition: 'out',
           colorAxis: {colors: ['#1a9850', '#f41333']},
           vAxis: {
             title: 'Cakupan (% TPS)',
             minValue: 0,
+            textPosition: 'out',
+            maxValue : maxY
           },
           hAxis: {
             title: 'Wilayah',
-            ticks: xTicksData
+            ticks: xTicksData,
+            textPosition: 'out'
           },
           bubble: {
             textStyle: {
