@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
-  <title>Visualisasi cakupan sumber data Kawal Pemilu </title>
+  <title>Memantau Para Relawan Kawal Pemilu </title>
 
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -21,6 +21,7 @@
     }
 
     #catatan li {
+      max-width: 900px;
       margin-bottom: 10px;
       line-height: 28px;
     }
@@ -148,9 +149,9 @@
         var data = google.visualization.arrayToDataTable(bubbleData);
 
         var options = {
-          title: 'Pilpres 2019',
+          title: 'Cakupan TPS per propinsi, Kawal Pemilu 2019',
           theme: 'maximized',
-          colorAxis: {colors: ['#1a9850', '#f46d43']},
+          colorAxis: {colors: ['#1a9850', '#f41333']},
           vAxis: {
             title: 'Cakupan (% TPS)',
             minValue: 0,
@@ -174,26 +175,40 @@
 </head>
 
 <body>
-    <h1> Cakupan Data TPS Kawal Pemilu</h1>
+    <h1> Memantau Para Relawan Kawal Pemilu</h1>
     <div class="keterangan"><p><a href="https://kawalpemilu.org">Kawal
             Pemilu</a> adalah proyek urun daya yang sangat bergantung pada
-        partisipasi relawan. Site ini dibuat untuk mengikuti kerja keras
-        para relawan yang berjuang untuk mengawal pemilu dan menjaga
-        terlaksananya pemilu yang adil.</p>
-        <p>Ketika data C1 sudah mencakup seluruh TPS yang ada di wilayah
-        tertentu, maka 'bubble' provinsi akan naik ke atas menuju 100%. Radius
-        'bubble' ditentukan oleh jumlah TPS yang ada dalam wilayah terkait. Warna
-        dari 'bubble' ditentukan oleh selisih suara antara pasangan 01 dan pasangan
-        02, merah berarti 01 lebih banyak sementara hijau berarti 02 lebih banyak. </p>
+        partisipasi relawan. Situs ini memantau kerja keras para relawan yang
+        berjuang untuk mengawal pemilu.  Berbeda dengan Quick Count yang
+        menggunakan metoda ilmiah dengan sampling data proporsional, pergerakan
+        data masuk ke Kawal Pemilu sangat dipengaruhi oleh partisipasi,
+        militansi dan semangat relawan di daerahnya dalam memasukkan data C1 ke
+        Kawal Pemilu.</p>
+
+        <p>
+        Visualisasi ini bisa membantu memahami perbedaan hasil sementara
+        antara Kawal Pemilu dengan Quick Count, KPU atau sumber lain. Kita bisa
+        melihat langsung persentase TPS provinsi yang datanya diterima Kawal Pemilu, 
+        seberapa besar jumlah TPS yang ada di tiap provinsi, dan kecenderungan
+        pemilih di provinsi tersebut secara visual. Ketiga faktor yang tiap
+        saat berubah sesuai kerja keras relawan inilah yang mempengaruhi hasil
+        sementara yang kita lihat saat ini di Kawal Pemilu.  </p>
+       
+        <p>
+        Kita perlu bersabar dan mendukung para relawan untuk mengumpulkan data selengkapnya,
+        sehingga perbedaan hasil sementara ini akan hilang dengan sendirinya.
+       
+        Semoga para relawan tetap semangat mengawal pemilu :) 
+        </p>
     </div>
     <div id="series_chart_div" class="bubble"></div>
     <div id="catatan">
         <h3>Catatan</h3>
         <ul>
-          <li>Sumbu vertikal menyatakan persentase TPS yang sudah tercakup Kawal Pemilu, dari seluruh TPS di wilayah tersebut.</li>
-          <li>Besar lingkaran data provinsi berdasarkan jumlah TPS di provinsi tersebut.</li>
-          <li>Warna lingkaran ditentukan oleh selisih pasangan 01-02.</li>
-          <li>Warna kemerahan berarti 01 lebih banyak, kehijauan 02.</li>
+          <li>Sumbu vertikal menyatakan persentase TPS yang sudah tercakup Kawal Pemilu, dari seluruh TPS di wilayah tersebut. Semakin tinggi, semakin banyak TPS yang sudah tercakup.</li>
+          <li>Sumbu horizontal hanya menyatakan provinsi, tiap garis vertikal mewakili satu provinsi.  Radius lingkaran data provinsi proporsional dengan jumlah TPS di provinsi tersebut.</li>
+          <li>Warna lingkaran ditentukan oleh selisih pasangan 01-02, warna kemerahan berarti 01 lebih banyak, kehijauan 02 lebih banyak. Lingkaran provinsi bisa di click untuk melihat langsung detil perbedaan. Positif 01 lebih besar, negatif sebaliknya.
+          </li>
           <li>Beberapa nama provinsi disingkat manual untuk memudahkan membaca.</li>
         </ul>
       </div>
