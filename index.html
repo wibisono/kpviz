@@ -39,7 +39,8 @@
 
     function fetchKawalPemilu(topology) {
       getKP(0).then( idn => {
-        var provinceIds = idn.children.map(p => p[0]);
+        var provinceIds = idn.children.map(p => p[0]).filter(id => id !== -99);
+        
         // Rodo nggilani slurup satu satu, tapi ndak papa ndak membebani KP.
         slurupKP(provinceIds, {}, topology);
       });
