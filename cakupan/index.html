@@ -10,7 +10,67 @@
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
+<style type="text/css">
+    body,
+    html {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0px;
+      padding: 20px;
+      height: 100%;
+      width: 100%;
+    }
 
+    #catatan li {
+      margin-bottom: 10px;
+      line-height: 28px;
+    }
+
+    #catatan span.error {
+      display: inline-block;
+      padding: 2px 15px;
+      background: #ffcdd2;
+    }
+
+    #catatan span.th {
+      display: inline-block;
+      padding: 2px 15px;
+      background: #ccc;
+    }
+
+    #catatan span.pending {
+      display: inline-block;
+      padding: 2px 15px;
+      background: #ffcc80;
+    }
+
+    div.bubble{
+      max-width: 900px;
+      height: 500px;
+      border-radius: 5px;
+      padding: 10px 15px;
+      margin: 15px -15px;
+      display: block;
+      line-height: 28px;
+    }
+
+    div.keterangan {
+      max-width: 900px;
+      border-radius: 5px;
+      padding: 10px 15px;
+      margin: 15px -15px;
+      display: block;
+      line-height: 28px;
+    }
+
+    div.keterangan p {
+      margin: 0 0 10px 0;
+    }
+
+    div.keterangan p:last-child {
+      margin: 0px;
+    }
+
+  </style>
   <script type="text/javascript">
       var singkatan = {
         "JAWA BARAT" : "JABAR",
@@ -75,7 +135,7 @@
                ntps
            ]);
 
-            xTicksData.push({ v: i+1, f: ''});
+            xTicksData.push({ v: i+1, f: headers[i][1]});
         }
 
         xTicksData.push({v: headers.length, f:''});
@@ -114,13 +174,23 @@
 </head>
 
 <body>
-    <h1> Visualisasi Cakupan Data TPS Kawal Pemilu</h1>
-    <h2> Tingkat Provinsi</h2>
-    <div id="series_chart_div" style="width: 1000px; height: 500px;"></div>
-    <div id="info">
-        <h3>Keterangan</h3>
+    <h1> Cakupan Data TPS Kawal Pemilu</h1>
+    <div class="keterangan"><p><a href="https://kawalpemilu.org">Kawal
+            Pemilu</a> adalah proyek urun daya yang sangat bergantung pada
+        partisipasi relawan. Site ini dibuat untuk mengikuti kerja keras
+        para relawan yang berjuang untuk mengawal pemilu dan menjaga
+        terlaksananya pemilu yang adil.</p>
+        <p>Ketika data C1 sudah mencakup seluruh TPS yang ada di wilayah
+        tertentu, maka 'bubble' provinsi akan naik ke atas menuju 100%. Radius
+        'bubble' ditentukan oleh jumlah TPS yang ada dalam wilayah terkait. Warna
+        dari 'bubble' ditentukan oleh selisih suara antara pasangan 01 dan pasangan
+        02, merah berarti 01 lebih banyak sementara hijau berarti 02 lebih banyak. </p>
+    </div>
+    <div id="series_chart_div" class="bubble"></div>
+    <div id="catatan">
+        <h3>Catatan</h3>
         <ul>
-          <li>Sumbu vertikal menyatakan prosentase TPS yang sudah tercakup Kawal Pemilu.</li>
+          <li>Sumbu vertikal menyatakan persentase TPS yang sudah tercakup Kawal Pemilu, dari seluruh TPS di wilayah tersebut.</li>
           <li>Besar lingkaran data provinsi berdasarkan jumlah TPS di provinsi tersebut.</li>
           <li>Warna lingkaran ditentukan oleh selisih pasangan 01-02.</li>
           <li>Warna kemerahan berarti 01 lebih banyak, kehijauan 02.</li>
