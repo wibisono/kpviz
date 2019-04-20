@@ -81,9 +81,6 @@
        width = window.innerWidth;
         height = window.innerHeight;
 
-      var colorRange = ["#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#ffffff", "#fee08b", "#fdae61", "#d73027", "#f46d43"];
-      var votingDomain = [-1000,-100,-10,0,10,100,1000];
-
       // Create SVG element
       svg = d3.select("#visualisasi").insert("svg", "p")
         .attr("width", width)
@@ -98,10 +95,13 @@
 
       path = d3.geoPath().projection(projection);
       console.log("Ready to draw", votingData);
+
+      var cr = ["#1a9850", "#66bd63", "#a6d96a", "#d9ef8b",  "#f4a333", "#f47333", "#f44333", "#f41333"];
+      var cd = [-20000,     -10000,     -1000,    -10,        10,        1000,      10000,      20000];
       // Color
       var votingColor = d3.scaleThreshold()
-        .domain(votingDomain)
-        .range(colorRange);
+           .domain(cd)
+           .range(cr);
 
       g = svg.append("g");
 
@@ -122,7 +122,7 @@
         .ease(d3.easeLinear)
         .attr("fill", function (d) {
           if (!d.properties.HASC_2) {
-            return "lightblue";
+            return "lightgray";
           } else {
             var vd = votingData[normalize(d.properties.NAME_2)];
             if(vd){
@@ -130,6 +130,7 @@
               var p2 = vd.pas2
               if(!p1) p1 = 0;
               if(!p2) p2 = 0;
+              if(p1 == 0 && p2 == 0) return "white";  
               return votingColor(p1-p2);
             } else 
             return "lightgray";
@@ -142,10 +143,10 @@
         .text(function (d) {
           var vd = votingData[normalize(d.properties.NAME_2)];
           if(vd){
-            if(!vd.pas1 && !vd.pas2) return "No data entry yet.";
-            return vd.name + " Jokowi: " + vd.pas1 + " Prabowo: " + vd.pas2;
+            if(!vd.pas1 && !vd.pas2) return "Belum ada data masuk untuk wilayah "+ d.properties.NAME_2;
+              return (vd.pas1-vd.pas2) + " => " + vd.name + " Jokowi: " + vd.pas1 + " Prabowo: " + vd.pas2 ;
           } else {
-            return d.properties.NAME_2 + " might be named differently in kawal pemilu";
+            return "Data tidak bisa ditampilkan karena penamaan peta berbeda dengan kawal pemilu untuk wilayah " + d.properties.NAME_2;
           }
           
         });
