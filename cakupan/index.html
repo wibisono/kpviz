@@ -76,6 +76,7 @@
       var singkatan = {
         "JAWA BARAT" : "JABAR",
         "JAWA TENGAH" : "JATENG",
+        "JAWA TIMUR" : "JATIM",
         "SUMATRA BARAT" : "SUMBAR",
         "KEPULAUAN RIAU" : "KEPRI",
         "SUMATERA SELATAN" : "SUMSEL",
@@ -136,15 +137,15 @@
                ntps
            ]);
 
-            xTicksData.push({ v: i+1, f: headers[i][1]});
+           xTicksData.push({ v: i+1, f: headers[i][1]});
         }
 
         xTicksData.push({v: headers.length, f:''});
 
-        drawSeriesChart(bubbleData, xTicksData);
-
+        drawSeriesChart(bubbleData, xTicksData, headers);
     }
-    function drawSeriesChart(bubbleData, xTicksData) {
+
+    function drawSeriesChart(bubbleData, xTicksData, headers) {
 
         var data = google.visualization.arrayToDataTable(bubbleData);
 
@@ -169,6 +170,13 @@
 
         var chart = new google.visualization.BubbleChart(document.getElementById('series_chart_div'));
         chart.draw(data, options);
+
+       google.visualization.events.addListener(chart, 'click', clickHandler);
+
+       function clickHandler(c) {
+            var pId = c.targetID.split("#")[2];
+            window.open('https://kawalpemilu.org/#pilpres:'+headers[pId][0]);
+       } 
       }
 
   </script>
@@ -178,7 +186,7 @@
     <h1> Memantau Para Relawan Kawal Pemilu</h1>
     <div class="keterangan"><p><a href="https://kawalpemilu.org">Kawal
             Pemilu</a> adalah proyek urun daya yang sangat bergantung pada
-        partisipasi relawan. Situs ini memantau kerja keras para relawan yang
+        partisipasi relawan, halaman ini memantau kerja keras para relawan yang
         berjuang untuk mengawal pemilu.  Berbeda dengan Quick Count yang
         menggunakan metoda ilmiah dengan sampling data proporsional, pergerakan
         data masuk ke Kawal Pemilu sangat dipengaruhi oleh partisipasi,
@@ -190,8 +198,8 @@
         antara Kawal Pemilu dengan Quick Count, KPU atau sumber lain. Kita bisa
         melihat langsung persentase TPS provinsi yang datanya diterima Kawal Pemilu, 
         seberapa besar jumlah TPS yang ada di tiap provinsi, dan kecenderungan
-        pemilih di provinsi tersebut secara visual. Ketiga faktor yang tiap
-        saat berubah sesuai kerja keras relawan inilah yang mempengaruhi hasil
+        pemilih di provinsi tersebut secara visual. Faktor-faktor yang tiap
+        saat diperbarui sesuai kerja keras relawan inilah yang mempengaruhi hasil
         sementara yang kita lihat saat ini di Kawal Pemilu.  </p>
        
         <p>
