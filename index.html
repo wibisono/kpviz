@@ -85,7 +85,7 @@
       var votingDomain = [-1000,-100,-10,0,10,100,1000];
 
       // Create SVG element
-      svg = d3.select("body").insert("svg", "p")
+      svg = d3.select("#visualisasi").insert("svg", "p")
         .attr("width", width)
         .attr("height", height * 0.8)
         .attr("class", "map");
@@ -174,7 +174,19 @@
 </head>
 
 <body>
+  <h1> Visualisasi Kawal Pemilu, Pilpres 2019</h1>
+  <h2> Tingkat Kabupaten/Kotamadya</h2>
   <div id="loading">Loading </div>
+  <div id="visualisasi"></div>
+  <div id="info">
+    <h3>Keterangan</h3>
+    <ul>
+      <li>Warna wilayah ditentukan oleh jumlah selisih suara pasangan 01 - pasangan 02.</li>
+      <li>Gradasi warna mulai dari merah sampai hijau, semakin besar selisih semakin pekat warnanya.</li>
+      <li>Wilayah dengan warna putih berarti belum ada data dari kawal pemilu.</li>
+      <li>Wilayah abu-abu berarti ada perbedaan nama wilayah antara data peta (topoJSON) dan Kawal Pemilu, sehingga data tidak bisa ditampilkan.</li>
+    </ul>
+  </div>
 </body>
 
 

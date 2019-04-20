@@ -12,6 +12,28 @@
 
 
   <script type="text/javascript">
+      var singkatan = {
+        "JAWA BARAT" : "JABAR",
+        "JAWA TENGAH" : "JATENG",
+        "SUMATRA BARAT" : "SUMBAR",
+        "KEPULAUAN RIAU" : "KEPRI",
+        "SUMATERA SELATAN" : "SUMSEL",
+        "SUMATERA UTARA" : "SUMUT",
+        "SUMATERA BARAT" : "SUMBAR",
+        "SULAWESI SELATAN" : "SULSEL",
+        "SULAWESI UTARA" : "SULUT",
+        "KALIMANTAN SELATAN" : "KALSEL",
+        "KALIMANTAN BARAT" : "KALBAR",
+        "KALIMANTAN TENGAH" : "KALTENG",
+        "KALIMANTAN TIMUR" : "KALTIM",
+        "NUSA TENGGARA BARAT" : "NTB",
+        "NUSA TENGGARA TIMUR" : "NTT",
+        "DAERAH ISTIMEWA YOGYAKARTA" : "DI YOGYAKARTA"
+      }
+      function disingkat(panjang){
+        if(panjang in singkatan) return singkatan[panjang];
+        return panjang;
+      }
 
       google.charts.load('current', {
         'packages': ['corechart']
@@ -42,7 +64,7 @@
            var pas1 = vd.pas1 ? vd.pas1 : 0; 
            var pas2 = vd.pas2 ? vd.pas2 : 0; 
            var cakupan = vd.cakupan? vd.cakupan: 0;
-           var name = headers[i][1];
+           var name = disingkat(headers[i][1]);
            var ntps = headers[i][2];
 
            bubbleData.push([
@@ -70,7 +92,7 @@
           theme: 'maximized',
           colorAxis: {colors: ['#1a9850', '#f46d43']},
           vAxis: {
-            title: 'Coverage',
+            title: 'Cakupan (% TPS)',
             minValue: 0,
           },
           hAxis: {
@@ -92,7 +114,19 @@
 </head>
 
 <body>
+    <h1> Visualisasi Cakupan Data TPS Kawal Pemilu</h1>
+    <h2> Tingkat Provinsi</h2>
     <div id="series_chart_div" style="width: 1000px; height: 500px;"></div>
+    <div id="info">
+        <h3>Keterangan</h3>
+        <ul>
+          <li>Sumbu vertikal menyatakan prosentase TPS yang sudah tercakup Kawal Pemilu.</li>
+          <li>Besar lingkaran data provinsi berdasarkan jumlah TPS di provinsi tersebut.</li>
+          <li>Warna lingkaran ditentukan oleh selisih pasangan 01-02.</li>
+          <li>Warna kemerahan berarti 01 lebih banyak, kehijauan 02.</li>
+          <li>Beberapa nama provinsi disingkat manual untuk memudahkan membaca.</li>
+        </ul>
+      </div>
 </body>
 
 
