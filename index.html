@@ -5,200 +5,94 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
-  <title>Cloropeth berdasarkan data dari kawal pemilu </title>
+  <title>Memantau Para Relawan Kawal Pemilu </title>
 
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
-  <script src="https://d3js.org/topojson.v3.min.js"></script>
 
-  <script type="text/javascript">
-
-    function getKP(id){
-      return $.getJSON('https://kawal-c1.appspot.com/api/c/'+id + '?'+ new Date().getTime());
+  <style type="text/css">
+    body,
+    html {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0px;
+      padding: 20px;
+      height: 100%;
+      width: 100%;
     }
 
-    function render() {
-      $.getJSON("indo.json").then(fetchKawalPemilu);
+    #catatan li {
+      max-width: 900px;
+      margin-bottom: 10px;
+      line-height: 28px;
     }
 
-    function normalize(kabname){
-      if(!kabname) return "";
-      return kabname.toUpperCase().replace(/KOTA/g,"")
-          .replace(/\W/g,"")
-          .replace(/BULONGAN/g,"BULUNGAN")
-          .replace(/PASIR/g,"PASER")
-          .replace(/KEPULAUANSELAYAR/g,"SELAYAR")
-          .replace(/SANGIHETALAUD/g,"SANGIHE")
-          .replace(/LIMAPULUHKOTO/g,"LIMAPULUH")
-          .replace(/PANGKAJENEDANKEPULAUAN/g,"PANGKAJENEKEPULAUAN")
-          .replace(/ADMINKEPULAUANSERIBU/g,"KEPULAUANSERIBU")
-          .replace(/KEPULAUANYAPEN/g,"YAPENWAROPEN")
-          .replace(/POLEWALIMAMASA/g,"POLEWALIMANDAR")
-          ;
+    #catatan span.error {
+      display: inline-block;
+      padding: 2px 15px;
+      background: #ffcdd2;
     }
 
-    function fetchKawalPemilu(topology) {
-      getKP(0).then( idn => {
-        var provinceIds = idn.children.map(p => p[0]).filter(id => id !== -99);
-        
-        // Rodo nggilani slurup satu satu, tapi ndak papa ndak membebani KP.
-        slurupKP(provinceIds, {}, topology);
-      });
+    #catatan span.th {
+      display: inline-block;
+      padding: 2px 15px;
+      background: #ccc;
     }
 
-    function slurupKP(ids, result, topology){
-        if(ids.length == 0){
-          $("#loading").hide();
-          drawMap(topology, result);
-        } else {
-          var id = ids.pop();          
-          getKP(id).then(data => {
-            $("#loading").html($("#loading").html() + "<br>" + data.name)
-            result = collect(result)(data);
-            slurupKP(ids, result, topology);
-          });
-        }
+    #catatan span.pending {
+      display: inline-block;
+      padding: 2px 15px;
+      background: #ffcc80;
     }
 
-    function collect(result) {
-      return function (data) {
-        for (var i = 0; i < data.children.length; i++) {
-          var id = data.children[i][0];
-          var kabKey = normalize(data.children[i][1]);
-          
-          result[kabKey] = {};
-          result[kabKey]['name'] = data.children[i][1];
-          result[kabKey]['pas1'] = data.data[id].sum.pas1;
-          result[kabKey]['pas2'] = data.data[id].sum.pas2;
-        }
-        return result;
-      };
-    };
-
-    var width, height, svg, projection, path, g;
-
-    function drawMap(topology, votingData) {
-       width = window.innerWidth;
-        height = window.innerHeight;
-
-      // Create SVG element
-      svg = d3.select("#visualisasi").insert("svg", "p")
-        .attr("width", width)
-        .attr("height", height * 0.8)
-        .attr("class", "map");
-
-      // Projection and path
-      projection = d3.geoMercator()
-        .center([118.25, -5])
-        .scale(width * 1.2)
-        .translate([width / 2, height / 2]);
-
-      path = d3.geoPath().projection(projection);
-      console.log("Ready to draw", votingData);
-
-      var cr = ["#1a9850", "#66bd63", "#a6d96a", "#d9ef8b",  "#f4a333", "#f47333", "#f44333", "#f41333"];
-      var cd = [-20000,     -10000,     -1000,    -10,        10,        1000,      10000,      20000];
-      // Color
-      var votingColor = d3.scaleThreshold()
-           .domain(cd)
-           .range(cr);
-
-      g = svg.append("g");
-
-      // Draw the map
-      g.selectAll("path")
-        .attr("class", "city")
-        .data(topojson.feature(topology, topology.objects.IDN_adm_2_kabkota).features)
-        .enter()
-        .append("path")
-        .attr("d", path)
-        .attr("stroke", "black")
-        .attr("stroke-width", "0.2")
-        .attr("fill", "white")
-        .transition().duration(2000)
-        .delay(function (d, i) {
-          return i * 5;
-        })
-        .ease(d3.easeLinear)
-        .attr("fill", function (d) {
-          if (!d.properties.HASC_2) {
-            return "lightgray";
-          } else {
-            var vd = votingData[normalize(d.properties.NAME_2)];
-            if(vd){
-              var p1 = vd.pas1
-              var p2 = vd.pas2
-              if(!p1) p1 = 0;
-              if(!p2) p2 = 0;
-              if(p1 == 0 && p2 == 0) return "white";  
-              return votingColor(p1-p2);
-            } else 
-            return "lightgray";
-            
-          }
-        });
-
-      g.selectAll("path")
-        .append("title")
-        .text(function (d) {
-          var vd = votingData[normalize(d.properties.NAME_2)];
-          if(vd){
-            if(!vd.pas1 && !vd.pas2) return "Belum ada data masuk untuk wilayah "+ d.properties.NAME_2;
-              return (vd.pas1-vd.pas2) + " => " + vd.name + " Jokowi: " + vd.pas1 + " Prabowo: " + vd.pas2 ;
-          } else {
-            return "Data tidak bisa ditampilkan karena penamaan peta berbeda dengan kawal pemilu untuk wilayah " + d.properties.NAME_2;
-          }
-          
-        });
+    div.bubble{
+      max-width: 900px;
+      height: 500px;
+      border-radius: 5px;
+      padding: 10px 15px;
+      margin: 15px -15px;
+      display: block;
+      line-height: 28px;
     }
 
-
-    d3.select(window).on("resize", resize);
-
-    function resize() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-
-      projection.scale(width * 1.2)
-        .translate([width / 2, height / 2]);
-
-      d3.select("svg")
-        .attr("width", width)
-        .attr("height", height * 0.8);
-
-      d3.selectAll("path")
-        .attr("d", path);
+    div.keterangan {
+      max-width: 900px;
+      border-radius: 5px;
+      padding: 10px 15px;
+      margin: 15px -15px;
+      display: block;
+      line-height: 28px;
     }
 
-    window.onload = render;
-  </script>
+    div.keterangan p {
+      margin: 0 0 10px 0;
+    }
+
+    div.keterangan p:last-child {
+      margin: 0px;
+    }
+
+  </style>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-138740952-1"></script>
-    <script>
+  <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
       gtag('config', 'UA-138740952-1');
-  </script>
+   </script>
 
 </head>
 
 <body>
-  <h1> Visualisasi Kawal Pemilu, Pilpres 2019</h1>
-  <h2> Tingkat Kabupaten/Kotamadya</h2>
-  <div id="loading">Loading </div>
-  <div id="visualisasi"></div>
-  <div id="info">
-    <h3>Keterangan</h3>
-    <ul>
-      <li>Warna wilayah ditentukan oleh jumlah selisih suara pasangan 01 - pasangan 02.</li>
-      <li>Gradasi warna mulai dari merah sampai hijau, semakin besar selisih semakin pekat warnanya.</li>
-      <li>Wilayah dengan warna putih berarti belum ada data dari kawal pemilu.</li>
-      <li>Wilayah abu-abu berarti ada perbedaan nama wilayah antara data peta (topoJSON) dan Kawal Pemilu, sehingga data tidak bisa ditampilkan.</li>
-    </ul>
-  </div>
+    <h1> Visualisasi data Kawal Pemilu</h1>
+      <div id="catatan">
+        <ul>
+            <li><a href="./cakupan">Perkembangan proses data masuk</a></li>
+            <li> <a href="./kabukota">Perolehan suara pilpres tingkat kabupaten/kotamadya.</a></li>
+        </ul>
+      </div>
 </body>
 
 
