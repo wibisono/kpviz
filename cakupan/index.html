@@ -103,6 +103,7 @@
         'packages': ['corechart']
       });
       google.charts.setOnLoadCallback(render);
+      window.onhashchange=render;
 
 
     function getKP(id){
@@ -110,16 +111,20 @@
     }
 
     function render() {
-        getKP(0).then(provinces => prepareTable(provinces));
+        var id = document.location.hash.substring(1);
+        if(!id) id = 0;
+        history.replaceState({}, "Memantau Relawan KP", location.pathname + '#' + id);
+        getKP(id).then(areaData => prepareTable(areaData));
     }
 
-    function prepareTable(provinces){
+    function prepareTable(areaData){
         let persen = function (a, b) {
             var p = b  ? Math.round(a / b * 10000) / 100 : 0
             return p;
         };
-        var headers = provinces.children;
-        var votes   = provinces.data;
+        var headers = areaData.children;
+        var votes   = areaData.data;
+        var depth   = areaData.depth;
         var bubbleData = [['ID', 'Wilayah', 'Cakupan', 'Beda suara 01-02', '# TPS']];
         var xTicksData  = [{v:0, f:''}];
         var maxCakupan = 0;
@@ -147,15 +152,15 @@
 
         xTicksData.push({v: headers.length + 1, f:''});
 
-        drawSeriesChart(bubbleData, xTicksData, headers, maxCakupan+10);
+        drawSeriesChart(bubbleData, xTicksData, headers, maxCakupan+10, depth);
     }
 
-    function drawSeriesChart(bubbleData, xTicksData, headers, maxY) {
+    function drawSeriesChart(bubbleData, xTicksData, headers, maxY, depth) {
 
         var data = google.visualization.arrayToDataTable(bubbleData);
 
         var options = {
-          title: 'Cakupan TPS per propinsi, Kawal Pemilu 2019',
+          title: 'Cakupan TPS per Wilayah, Kawal Pemilu 2019',
           chartArea: {width: '85%', height: '70%'},
           legend: {position: 'out'},
           titlePosition: 'out', 
@@ -185,8 +190,13 @@
 
        function clickHandler(c) {
             var pId = c.targetID.split("#")[2];
-            window.open('https://kawalpemilu.org/#pilpres:'+headers[pId][0]);
-       } 
+            if(depth < 3){
+              window.location.href = '#'+headers[pId][0];
+              location.reload(true); 
+            } else {
+              window.location.replace('https://kawalpemilu.org/#pilpres:'+headers[pId][0]);
+            }
+        } 
       }
 
   </script>
@@ -217,9 +227,9 @@
         <p>
         Visualisasi ini bisa membantu memahami perbedaan hasil sementara
         antara Kawal Pemilu dengan Quick Count, KPU atau sumber lain. Kita bisa
-        melihat langsung persentase TPS provinsi yang datanya diterima Kawal Pemilu, 
-        seberapa besar jumlah TPS yang ada di tiap provinsi, dan kecenderungan
-        pemilih di provinsi tersebut secara visual. Faktor-faktor yang tiap
+        melihat langsung persentase TPS wilayah yang datanya diterima Kawal Pemilu, 
+        seberapa besar jumlah TPS yang ada di tiap wilayah, dan kecenderungan
+        pemilih di wilayah tersebut secara visual. Faktor-faktor yang tiap
         saat diperbarui sesuai kerja keras relawan inilah yang mempengaruhi hasil
         sementara yang kita lihat saat ini di Kawal Pemilu.  </p>
        
@@ -235,10 +245,10 @@
         <h3>Catatan</h3>
         <ul>
           <li>Sumbu vertikal menyatakan persentase TPS yang sudah tercakup Kawal Pemilu, dari seluruh TPS di wilayah tersebut. Semakin tinggi, semakin banyak TPS yang sudah tercakup.</li>
-          <li>Sumbu horizontal hanya menyatakan provinsi, tiap garis vertikal mewakili satu provinsi.  Radius lingkaran data provinsi proporsional dengan jumlah TPS di provinsi tersebut.</li>
-          <li>Warna lingkaran ditentukan oleh selisih pasangan 01-02, warna kemerahan berarti 01 lebih banyak, kehijauan 02 lebih banyak. Lingkaran provinsi bisa di click untuk melihat langsung detil perbedaan. Positif 01 lebih besar, negatif sebaliknya.
+          <li>Sumbu horizontal hanya menyatakan wilayah, tiap garis vertikal mewakili satu wilayah.  Radius lingkaran data wilayah proporsional dengan jumlah TPS di wilayah tersebut.</li>
+          <li>Warna lingkaran ditentukan oleh selisih pasangan 01-02, warna kemerahan berarti 01 lebih banyak, kehijauan 02 lebih banyak. Lingkaran wilayah bisa di click untuk melihat langsung detil perbedaan. Positif 01 lebih besar, negatif sebaliknya.
           </li>
-          <li>Beberapa nama provinsi disingkat manual untuk memudahkan membaca.</li>
+          <li>Beberapa nama wilayah disingkat manual untuk memudahkan membaca.</li>
         </ul>
       </div>
 </body>
