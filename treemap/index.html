@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <title>Treemap data Kabupaten Kotamadya dari Kawal Pemilu</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <script type="text/javascript">
+      google.charts.load('current', {
+        'packages': ['treemap']
+      });
+      google.charts.setOnLoadCallback(fetchAndRender);
+      window.onhashchange=fetchAndRender;
+
+
+
+    function getKP(id){
+      return $.getJSON('https://kawal-c1.appspot.com/api/c/'+id + '?'+ new Date().getTime());
+    }
+
+    function fetchAndRender(){
+
+      var id = document.location.hash.substring(1);
+      if(!id) id = 0;
+      history.replaceState({}, "Peta pilpres 2019", location.pathname + '#' + id);
+      getKP(id).then( idn => {
+        var result = [["IDN (0)", null, 0, 0]];
+        collect(result)(idn);
+        slurupKP(idn, 0, result);
+      });
+    }
+
+    function slurupKP(idn, cur, result){
+        if(idn.children.length == cur){
+          $("#loading").hide();
+          drawMap(result);
+        } else {
+          var id = idn.children[cur][0];          
+          getKP(id).then(data => {
+            $("#loading").html($("#loading").html() + "<br>" + data.name)
+            result = collect(result)(data);
+            slurupKP(idn, cur+1, result);
+          });
+        }
+    }
+
+    function collect(result) {
+      return function (data) {
+        for (var i = 0; i < data.children.length; i++) {
+          var id = data.children[i][0];
+          if(!data.data[id] ) continue;
+          var p1 = data.data[id].sum.pas1;  
+          var p2 = data.data[id].sum.pas2;  
+          var sah = data.data[id].sum.sah;  
+          var cName= data.children[i][1]+" (" +id+")";
+          var parent = data.name+" ("+data.id+")";
+          var curRow = [cName, parent, sah, (p1-p2)/sah];
+          result.push(curRow);
+        }
+        return result;
+      };
+    };
+
+    function drawMap(treeMapData) {
+        console.log("Ready to draw", treeMapData);    
+
+        treeMapData.unshift(["Wilayah","Induk","#TPS", "Selisih P1-P2"]);
+
+        var data = google.visualization.arrayToDataTable(treeMapData);
+
+        var options = {
+            title: 'Peta Suara Paslon 2019, Area => #TPS, Warna => Delta P1-P2',
+
+            //minColor: '#1a9850',
+            //midColor: '#eeeeee',
+            //midColor: '#f41333'
+             minColor: '#f00',
+            midColor: '#ddd',
+            maxColor: '#0d0',
+        };
+
+        var chart = new google.visualization.TreeMap(document.getElementById('visualisasi'));
+        chart.draw(data, options);
+
+       google.visualization.events.addListener(chart, 'select', selectHandler);
+
+       function selectHandler() {
+            console.log("Selection",getSelection());
+            
+        } 
+
+    }
+
+  </script>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-138740952-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-138740952-1');
+  </script>
+
+</head>
+
+<body>
+  <h1> Visualisasi Kawal Pemilu, Pilpres 2019</h1>
+  <h2> Tingkat Kabupaten/Kotamadya</h2>
+  <div id="loading">Loading </div>
+  <div id="visualisasi" style="width: 900px; height: 900px;"  ></div>
+  <div id="info">
+    <h3>Keterangan</h3>
+    <ul>
+      <li>Warna wilayah ditentukan oleh jumlah selisih suara pasangan 01 - pasangan 02.</li>
+      <li>Gradasi warna mulai dari merah sampai hijau, semakin besar selisih semakin pekat warnanya.</li>
+      <li>Wilayah dengan warna putih berarti belum ada data dari kawal pemilu.</li>
+      <li>Wilayah abu-abu berarti ada perbedaan nama wilayah antara data peta (topoJSON) dan Kawal Pemilu, sehingga data tidak bisa ditampilkan.</li>
+    </ul>
+  </div>
+</body>
+
+
+</html>
