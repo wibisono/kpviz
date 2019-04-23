@@ -5,107 +5,116 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
-  <title>Treemap data Kabupaten Kotamadya dari Kawal Pemilu</title>
+  <title>Treemaps Perolehan suara Pilpres 2019 | Kawal Pemilu</title>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
   <script type="text/javascript">
-      google.charts.load('current', {
-        'packages': ['treemap']
-      });
-      google.charts.setOnLoadCallback(fetchAndRender);
-      window.onhashchange=fetchAndRender;
 
+    google.charts.load('current', {
+      'packages': ['treemap']
+    });
+    google.charts.setOnLoadCallback(fetchAndRender);
+    window.onhashchange = fetchAndRender;
 
+    var depth = 0;
 
-    function getKP(id){
-      return $.getJSON('https://kawal-c1.appspot.com/api/c/'+id + '?'+ new Date().getTime());
-    }
-
-    function fetchAndRender(){
+    function fetchAndRender() {
 
       var id = document.location.hash.substring(1);
-      if(!id) id = 0;
-      history.replaceState({}, "Peta pilpres 2019", location.pathname + '#' + id);
-      getKP(id).then( idn => {
-        var result = [["IDN (0)", null, 0, 0]];
-        collect(result)(idn);
-        slurupKP(idn, 0, result);
+      if (!id) id = 0;
+
+      history.replaceState({}, 'Treemaps Pilpres 2019 dari Kawal Pemilu', location.pathname + '#' + id);
+      getKP(id).then(data => {
+        var result = [
+          [id+"", null, 0, 0]
+        ];
+        
+        depth = data.depth;
+      
+        drawMap(collect(data, result));
       });
     }
 
-    function slurupKP(idn, cur, result){
-        if(idn.children.length == cur){
-          $("#loading").hide();
-          drawMap(result);
-        } else {
-          var id = idn.children[cur][0];          
-          getKP(id).then(data => {
-            $("#loading").html($("#loading").html() + "<br>" + data.name)
-            result = collect(result)(data);
-            slurupKP(idn, cur+1, result);
-          });
-        }
+    function getKP(id) {
+      return $.getJSON('https://kawal-c1.appspot.com/api/c/' + id + '?' + new Date().getTime());
     }
 
-    function collect(result) {
-      return function (data) {
+    
+    function collect(data, result) {
         for (var i = 0; i < data.children.length; i++) {
           var id = data.children[i][0];
-          if(!data.data[id] ) continue;
-          var p1 = data.data[id].sum.pas1;  
-          var p2 = data.data[id].sum.pas2;  
-          var sah = data.data[id].sum.sah;  
-          var cName= data.children[i][1]+" (" +id+")";
-          var parent = data.name+" ("+data.id+")";
-          var curRow = [cName, parent, sah, (p1-p2)/sah];
-          result.push(curRow);
+          if (!data.data[id]) continue;
+          var p1 = data.data[id].sum.pas1;
+          var p2 = data.data[id].sum.pas2;
+          var ntps = data.children[i][2];
+          var cName = data.children[i][1];
+          var parent = data.name;
+          if(!p1) p1 = 0;
+          if(!p2) p2 = 0;
+          var diff = !(p1+p2)? 0 : (p1 - p2) / (p1+p2);
+          var curSelection = [{v: id+"", f: cName}, {v:data.id+"", f:parent}, ntps, diff];
+          result.push(curSelection);
         }
         return result;
-      };
-    };
+    }
+    var curRow=0, changing = false;
 
     function drawMap(treeMapData) {
-        console.log("Ready to draw", treeMapData);    
 
-        treeMapData.unshift(["Wilayah","Induk","#TPS", "Selisih P1-P2"]);
+      treeMapData.unshift(["Wilayah", "Induk", "#TPS", "Selisih P1-P2"]);
 
-        var data = google.visualization.arrayToDataTable(treeMapData);
+      var data = google.visualization.arrayToDataTable(treeMapData);
+      
+      var options = {
+        title: 'Peta Suara Paslon 2019, Area => #TPS, Warna => Delta P1-P2',
 
-        var options = {
-            title: 'Peta Suara Paslon 2019, Area => #TPS, Warna => Delta P1-P2',
+        maxColor: '#f00',
+        midColor: '#ddd',
+        minColor: '#0d0',
+      };
 
-            //minColor: '#1a9850',
-            //midColor: '#eeeeee',
-            //midColor: '#f41333'
-             maxColor: '#f00',
-            midColor: '#ddd',
-            minColor: '#0d0',
-        };
+      var chart = new google.visualization.TreeMap(document.getElementById('visualisasi'));
+      chart.draw(data, options);
 
-        var chart = new google.visualization.TreeMap(document.getElementById('visualisasi'));
-        chart.draw(data, options);
+      
+      google.visualization.events.addListener(chart, 'onmouseover', currentRow);
+      google.visualization.events.addListener(chart, 'select', selectHandler(treeMapData));
 
-       google.visualization.events.addListener(chart, 'select', selectHandler);
-
-       function selectHandler() {
-            console.log("Selection",getSelection());
-            
-        } 
+      function currentRow(data) {
+        changing = curRow !== data.row;
+        curRow = data.row;
+      }
 
     }
-
+    function selectHandler(treeMapData) {
+        return function(){
+        if(!changing) return;
+        
+        var id = treeMapData[curRow+1][0].v;
+        if (depth < 3) {
+          
+          window.location.href = '#' + id;
+          location.reload(true);
+        } else {
+          window.location.replace('https://kawalpemilu.org/#pilpres:' + id);
+        }
+        }
+      }
   </script>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-138740952-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+  <script>
+    window.dataLayer = window.dataLayer || [];
 
-      gtag('config', 'UA-138740952-1');
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-138740952-1');
   </script>
 
 </head>
@@ -113,15 +122,15 @@
 <body>
   <h1> Visualisasi Kawal Pemilu, Pilpres 2019</h1>
   <h2> Tingkat Kabupaten/Kotamadya</h2>
-  <div id="loading">Loading </div>
-  <div id="visualisasi" style="width: 900px; height: 900px;"  ></div>
+  <div id="visualisasi" style="width: 900px; height: 900px;"></div>
   <div id="info">
     <h3>Keterangan</h3>
     <ul>
       <li>Warna wilayah ditentukan oleh jumlah selisih suara pasangan 01 - pasangan 02.</li>
       <li>Gradasi warna mulai dari merah sampai hijau, semakin besar selisih semakin pekat warnanya.</li>
       <li>Wilayah dengan warna putih berarti belum ada data dari kawal pemilu.</li>
-      <li>Wilayah abu-abu berarti ada perbedaan nama wilayah antara data peta (topoJSON) dan Kawal Pemilu, sehingga data tidak bisa ditampilkan.</li>
+      <li>Wilayah abu-abu berarti ada perbedaan nama wilayah antara data peta (topoJSON) dan Kawal Pemilu, sehingga data
+        tidak bisa ditampilkan.</li>
     </ul>
   </div>
 </body>
