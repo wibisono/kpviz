@@ -30,7 +30,7 @@
         var result = [
           [id+"", null, 0, 0]
         ];
-        
+
         depth = data.depth;
       
         drawMap(collect(data, result));
@@ -68,8 +68,9 @@
       var data = google.visualization.arrayToDataTable(treeMapData);
       
       var options = {
-        title: 'Peta Suara Paslon 2019, Area => #TPS, Warna => Delta P1-P2',
-
+        title: 'Peta Suara Paslon 2019, Area => #TPS, Warna => Relative Delta P1-P2/(P1+P2)',
+        minColorValue: -1,
+        maxColorValue: 1,
         maxColor: '#f00',
         midColor: '#ddd',
         minColor: '#0d0',
@@ -126,11 +127,9 @@
   <div id="info">
     <h3>Keterangan</h3>
     <ul>
-      <li>Warna wilayah ditentukan oleh jumlah selisih suara pasangan 01 - pasangan 02.</li>
-      <li>Gradasi warna mulai dari merah sampai hijau, semakin besar selisih semakin pekat warnanya.</li>
-      <li>Wilayah dengan warna putih berarti belum ada data dari kawal pemilu.</li>
-      <li>Wilayah abu-abu berarti ada perbedaan nama wilayah antara data peta (topoJSON) dan Kawal Pemilu, sehingga data
-        tidak bisa ditampilkan.</li>
+      <li>Warna wilayah ditentukan oleh jumlah relatif selisih suara pasangan 01 - pasangan 02 / jumlah suara keduanya.</li>
+      <li>Wilayah dengan abu abu berarti belum ada data dari kawal pemilu.</li>
+     
     </ul>
   </div>
 </body>
