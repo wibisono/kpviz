@@ -17,8 +17,9 @@
       return $.getJSON('https://kawal-c1.appspot.com/api/c/'+id + '?'+ new Date().getTime());
     }
 
-    function render() {
-      $.getJSON("indo.json").then(fetchKawalPemilu);
+    async function render() {
+      var topology = await $.getJSON("indo.json")
+      fetchKawalPemilu(topology);
     }
 
     function normalize(kabname){
@@ -37,29 +38,20 @@
           ;
     }
 
-    function fetchKawalPemilu(topology) {
-      getKP(0).then( idn => {
-        var provinceIds = idn.children.map(p => p[0]).filter(id => id !== -99);
-        
-        // Rodo nggilani slurup satu satu, tapi ndak papa ndak membebani KP.
-        slurupKP(provinceIds, {}, topology);
-      });
-    }
-
-    function slurupKP(ids, result, topology){
-        if(ids.length == 0){
-          $("#loading").hide();
-          drawMap(topology, result);
-        } else {
-          var id = ids.pop();          
-          getKP(id).then(data => {
+    async function fetchKawalPemilu(topology) {
+        var idn = await getKP(0);
+        var loadingProvinces = idn.children.map(p => p[0]).filter(id => id !== -99).map(id => getKP(id).then(data => {
             $("#loading").html($("#loading").html() + "<br>" + data.name)
-            result = collect(result)(data);
-            slurupKP(ids, result, topology);
-          });
-        }
-    }
+            return data;
+        }));
+        var provincesData = await Promise.all(loadingProvinces); 
 
+        var kabuKotaData = {};
+        provincesData.forEach(data => collect(kabuKotaData)(data));
+        $("#loading").hide();
+        drawMap(topology, kabuKotaData);
+    };
+    
     function collect(result) {
       return function (data) {
         for (var i = 0; i < data.children.length; i++) {
@@ -184,6 +176,7 @@
   </script>
 
 </head>
+
 
 <body>
   <h1> Visualisasi Kawal Pemilu, Pilpres 2019</h1>
