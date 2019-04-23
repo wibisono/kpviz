@@ -59,7 +59,7 @@
         }
         return result;
     }
-    var curRow=0, changing = false;
+    var curRow=0;
 
     function drawMap(treeMapData) {
 
@@ -84,14 +84,12 @@
       google.visualization.events.addListener(chart, 'select', selectHandler(treeMapData));
 
       function currentRow(data) {
-        changing = curRow !== data.row;
         curRow = data.row;
       }
 
     }
     function selectHandler(treeMapData) {
         return function(){
-        if(!changing) return;
         
         var id = treeMapData[curRow+1][0].v;
         if (depth < 3) {
