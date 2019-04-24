@@ -11,7 +11,6 @@
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
   <script type="text/javascript">
-
     google.charts.load('current', {
       'packages': ['treemap']
     });
@@ -28,51 +27,64 @@
       history.replaceState({}, 'Treemaps Pilpres 2019 dari Kawal Pemilu', location.pathname + '#' + id);
       getKP(id).then(data => {
         var result = [
-          [id+"", null, 0, 0]
+          [id + "", null, 0, 0]
         ];
 
         depth = data.depth;
-      
+
         drawMap(collect(data, result));
       });
     }
-
+    function thousands(value) {
+        return value.toLocaleString('id')
+      }
     function getKP(id) {
       return $.getJSON('https://kawal-c1.appspot.com/api/c/' + id + '?' + new Date().getTime());
     }
 
     function persen(a, b) {
-       var p = b  ? Math.round(a / b * 10000) / 100 : 0
-       return p;
+      var p = b ? Math.round(a / b * 10000) / 100 : 0
+      return p;
     };
 
-    
+
     function collect(data, result) {
-        for (var i = 0; i < data.children.length; i++) {
-          var id = data.children[i][0];
-          if (!data.data[id]) continue;
-          var p1 = data.data[id].sum.pas1;
-          var p2 = data.data[id].sum.pas2;
-          var cakupan = data.data[id].sum.cakupan;
-          var ntps = data.children[i][2];
-          var cName = data.children[i][1];
-          var parent = data.name;
-          if(!p1) p1 = 0;
-          if(!p2) p2 = 0;
-          var diff = !(p1+p2)? 0 : (p1 - p2) / (p1+p2);
-            var curSelection = [{v: id+"", f: cName + " (TPS " + persen(cakupan, ntps)+"%) " }, {v:data.id+"", f:parent}, ntps, diff];
-          result.push(curSelection);
-        }
-        return result;
+      for (var i = 0; i < data.children.length; i++) {
+        var id = data.children[i][0];
+        if (!data.data[id]) continue;
+        var p1 = data.data[id].sum.pas1;
+        var p2 = data.data[id].sum.pas2;
+        var cakupan = data.data[id].sum.cakupan;
+        var ntps = data.children[i][2];
+        var cName = data.children[i][1];
+        var parent = data.name;
+        if (!p1) p1 = 0;
+        if (!p2) p2 = 0;
+        var diff = !(p1 + p2) ? 0 : (p1 - p2) / (p1 + p2);
+        var curSelection = [{
+          v: id + "",
+          f: cName,
+          t: {
+            tps: persen(cakupan, ntps),
+            p1: p1,
+            p2: p2
+          }
+        }, {
+          v: data.id + "",
+          f: parent
+        }, ntps, diff];
+        result.push(curSelection);
+      }
+      return result;
     }
-    var curRow=0;
+    var curRow = 0;
 
     function drawMap(treeMapData) {
 
       treeMapData.unshift(["Wilayah", "Induk", "#TPS", "Selisih P1-P2"]);
 
       var data = google.visualization.arrayToDataTable(treeMapData);
-      
+
       var options = {
         title: 'Peta Suara Paslon 2019, Area => #TPS, Warna => Relative Delta P1-P2/(P1+P2)',
         minColorValue: -1,
@@ -80,34 +92,53 @@
         maxColor: '#f00',
         midColor: '#ddd',
         minColor: '#0d0',
+        generateTooltip: showTooltip(data)
       };
+
 
       var chart = new google.visualization.TreeMap(document.getElementById('visualisasi'));
       chart.draw(data, options);
 
-      
+
       google.visualization.events.addListener(chart, 'onmouseover', currentRow);
       google.visualization.events.addListener(chart, 'select', selectHandler(treeMapData));
 
       function currentRow(data) {
         curRow = data.row;
       }
-      
+
     }
-    
-    
+
+    function showTooltip(data) {
+      return function (row, size, value) {
+        var v = data.wg[row].c[0];
+        var t = v.t;
+        if (!t) return "";
+        return '<div style="background-color:white;padding:5px;border-style:solid;text-align:right;" onclick=gokp('+v.v+')>'+
+        '<table><tr><td>Jokowi-Amin</td><td>'+ thousands(t.p1) + '</td></tr>'+
+        '<tr><td>Prabowo-Sandi</td><td>' + thousands(t.p2) + '</td></tr>'+
+        '<tr><td>TPS</td><td>' + t.tps + '%</td></tr></table></div>';
+
+      }
+    }
+
     function selectHandler(treeMapData) {
-        return function(){
-            var id = treeMapData[curRow+1][0].v;
-            if (depth < 3) {
-              
-              window.location.href = '#' + id;
-              location.reload(true);
-            } else {
-              window.location.replace('https://kawalpemilu.org/#pilpres:' + id);
-            }
+      return function () {
+        var id = treeMapData[curRow + 1][0].v;
+        if (depth < 3) {
+
+          window.location.href = '#' + id;
+          location.reload(true);
+        } else {
+          window.location.replace('https://kawalpemilu.org/#pilpres:' + id);
         }
       }
+    }
+    function gokp(id){
+      // history.replaceState({}, 'Treemaps Pilpres 2019 dari Kawal Pemilu', location.pathname + '#' + id);
+      window.location.replace('https://kawalpemilu.org/#pilpres:' + id);
+      
+    }
   </script>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -127,14 +158,16 @@
 
 <body>
   <h1> Treemap Perolehan Suara Kawal Pemilu, Pilpres 2019</h1>
-  <p> Disclaimer: Pengumpulan data belum final, silahkan lihat progress data yang masuk ke kawalpemilu.org di halaman <a href="https://wibisono.github.io/kpviz/cakupan">cakupan</a>.</p>
+  <p> Disclaimer: Pengumpulan data belum final, silahkan lihat progress data yang masuk ke kawalpemilu.org di halaman <a
+      href="https://wibisono.github.io/kpviz/cakupan">cakupan</a>.</p>
   <div id="visualisasi" style="width: 900px; height: 900px;"></div>
   <div id="info">
     <h3>Keterangan</h3>
     <ul>
-      <li>Warna wilayah ditentukan oleh jumlah relatif selisih suara pasangan 01 - pasangan 02 / jumlah suara keduanya.</li>
+      <li>Warna wilayah ditentukan oleh jumlah relatif selisih suara pasangan 01 - pasangan 02 / jumlah suara keduanya.
+      </li>
       <li>Wilayah dengan abu abu berarti belum ada data dari kawal pemilu.</li>
-     
+
     </ul>
   </div>
 </body>
