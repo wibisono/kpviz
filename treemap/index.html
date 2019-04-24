@@ -41,6 +41,11 @@
       return $.getJSON('https://kawal-c1.appspot.com/api/c/' + id + '?' + new Date().getTime());
     }
 
+    function persen(a, b) {
+       var p = b  ? Math.round(a / b * 10000) / 100 : 0
+       return p;
+    };
+
     
     function collect(data, result) {
         for (var i = 0; i < data.children.length; i++) {
@@ -48,13 +53,14 @@
           if (!data.data[id]) continue;
           var p1 = data.data[id].sum.pas1;
           var p2 = data.data[id].sum.pas2;
+          var cakupan = data.data[id].sum.cakupan;
           var ntps = data.children[i][2];
           var cName = data.children[i][1];
           var parent = data.name;
           if(!p1) p1 = 0;
           if(!p2) p2 = 0;
           var diff = !(p1+p2)? 0 : (p1 - p2) / (p1+p2);
-          var curSelection = [{v: id+"", f: cName}, {v:data.id+"", f:parent}, ntps, diff];
+            var curSelection = [{v: id+"", f: cName + " (TPS " + persen(cakupan, ntps)+"%) " }, {v:data.id+"", f:parent}, ntps, diff];
           result.push(curSelection);
         }
         return result;
@@ -86,19 +92,20 @@
       function currentRow(data) {
         curRow = data.row;
       }
-
+      
     }
+    
+    
     function selectHandler(treeMapData) {
         return function(){
-        
-        var id = treeMapData[curRow+1][0].v;
-        if (depth < 3) {
-          
-          window.location.href = '#' + id;
-          location.reload(true);
-        } else {
-          window.location.replace('https://kawalpemilu.org/#pilpres:' + id);
-        }
+            var id = treeMapData[curRow+1][0].v;
+            if (depth < 3) {
+              
+              window.location.href = '#' + id;
+              location.reload(true);
+            } else {
+              window.location.replace('https://kawalpemilu.org/#pilpres:' + id);
+            }
         }
       }
   </script>
