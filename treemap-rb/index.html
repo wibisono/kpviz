@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <title>Treemaps Perolehan suara Pilpres 2019 | Kawal Pemilu</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <script type="text/javascript">
+
+    google.charts.load('current', {
+      'packages': ['treemap']
+    });
+    google.charts.setOnLoadCallback(fetchAndRender);
+    window.onhashchange = fetchAndRender;
+
+    var depth = 0;
+
+    function fetchAndRender() {
+
+      var id = document.location.hash.substring(1);
+      if (!id) id = 0;
+
+      history.replaceState({}, 'Treemaps Pilpres 2019 dari Kawal Pemilu', location.pathname + '#' + id);
+      getKP(id).then(data => {
+        var result = [
+          [id+"", null, 0, 0]
+        ];
+
+        depth = data.depth;
+      
+        drawMap(collect(data, result));
+      });
+    }
+
+    function getKP(id) {
+      return $.getJSON('https://kawal-c1.appspot.com/api/c/' + id + '?' + new Date().getTime());
+    }
+
+    
+    function collect(data, result) {
+        for (var i = 0; i < data.children.length; i++) {
+          var id = data.children[i][0];
+          if (!data.data[id]) continue;
+          var p1 = data.data[id].sum.pas1;
+          var p2 = data.data[id].sum.pas2;
+          var ntps = data.children[i][2];
+          var cName = data.children[i][1];
+          var parent = data.name;
+          if(!p1) p1 = 0;
+          if(!p2) p2 = 0;
+          var diff = !(p1+p2)? 0 : (p1 - p2) / (p1+p2);
+          var curSelection = [{v: id+"", f: cName}, {v:data.id+"", f:parent}, ntps, diff];
+          result.push(curSelection);
+        }
+        return result;
+    }
+    var curRow=0;
+
+    function drawMap(treeMapData) {
+
+      treeMapData.unshift(["Wilayah", "Induk", "#TPS", "Selisih P1-P2"]);
+
+      var data = google.visualization.arrayToDataTable(treeMapData);
+      
+      var options = {
+        title: 'Peta Suara Paslon 2019, Area => #TPS, Warna => Relative Delta P1-P2/(P1+P2)',
+        minColorValue: -1,
+        maxColorValue: 1,
+        maxColor: '#E91D0E',
+        midColor: '#fff',
+        minColor: '#232066',
+      };
+
+      var chart = new google.visualization.TreeMap(document.getElementById('visualisasi'));
+      chart.draw(data, options);
+
+      
+      google.visualization.events.addListener(chart, 'onmouseover', currentRow);
+      google.visualization.events.addListener(chart, 'select', selectHandler(treeMapData));
+
+      function currentRow(data) {
+        curRow = data.row;
+      }
+
+    }
+    function selectHandler(treeMapData) {
+        return function(){
+        
+        var id = treeMapData[curRow+1][0].v;
+        if (depth < 3) {
+          
+          window.location.href = '#' + id;
+          location.reload(true);
+        } else {
+          window.location.replace('https://kawalpemilu.org/#pilpres:' + id);
+        }
+        }
+      }
+  </script>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-138740952-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-138740952-1');
+  </script>
+
+</head>
+
+<body>
+  <h1> Treemap Perolehan Suara Kawal Pemilu, Pilpres 2019</h1>
+  <p> Disclaimer: Pengumpulan data belum final, silahkan lihat progress data yang masuk ke kawalpemilu.org di halaman <a href="https://wibisono.github.io/kpviz/cakupan">cakupan</a>.</p>
+  <div id="visualisasi" style="width: 900px; height: 900px;"></div>
+  <div id="info">
+    <h3>Keterangan</h3>
+    <ul>
+      <li>Warna wilayah ditentukan oleh jumlah relatif selisih suara pasangan 01 - pasangan 02 / jumlah suara keduanya.</li>
+      <li>Wilayah dengan abu abu berarti belum ada data dari kawal pemilu.</li>
+     
+    </ul>
+  </div>
+</body>
+
+
+</html>
