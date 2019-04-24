@@ -114,10 +114,10 @@
         var v = data.wg[row].c[0];
         var t = v.t;
         if (!t) return "";
-        return '<div style="background-color:white;padding:5px;border-style:solid;text-align:right;" onclick=gokp('+v.v+')>'+
-        '<table><tr><td>Jokowi-Amin</td><td>'+ thousands(t.p1) + '</td></tr>'+
-        '<tr><td>Prabowo-Sandi</td><td>' + thousands(t.p2) + '</td></tr>'+
-        '<tr><td>TPS</td><td>' + t.tps + '%</td></tr></table></div>';
+        return '<div style="background-color:white;padding:5px;border-style:solid;text-align:center;" onclick=gokp('+v.v+')>'+ v.f+
+        '<table><tr><td>Jokowi-Amin</td><td style="text-align:right">'+ thousands(t.p1) + '</td></tr>'+
+        '<tr><td>Prabowo-Sandi</td><td style="text-align:right">' + thousands(t.p2) + '</td></tr>'+
+        '<tr><td>TPS</td><td style="text-align:right">' + t.tps + '%</td></tr></table></div>';
 
       }
     }
