@@ -160,12 +160,8 @@
         var tooltip = d3.select('body').append('div')
             .attr('class', 'hidden tooltip');
 
-        g.selectAll("path").on("click", function(d){
-          var vd = votingData[normalize(d.properties.NAME_2)];
-          window.open('https://kawalpemilu.org/#pilpres:'+vd.id);
-        }).on("mousemove", function(d){
-
-            var mouse = d3.mouse(svg.node()).map(function(d) {
+        g.selectAll("path").on("mousemove", function(d){
+             var mouse = d3.mouse(svg.node()).map(function(d) {
                         return parseInt(d);
                     });
 
@@ -178,7 +174,9 @@
             tooltip.classed('hidden', true);
         });
     }
-
+    function goKP(id){
+          window.open('https://kawalpemilu.org/#pilpres:'+id);
+    }
     function sPersen(a, b) {
         var p = b ? Math.round(a / b * 10000) / 100 : 0
         return toId(p) + '%'
@@ -191,7 +189,7 @@
     function getTooltip(vd){
           if(vd){
             if(!vd.pas1 && !vd.pas2) return "Belum ada data masuk untuk wilayah "+ vd.name;
-              return  '<table><thead><tr><th colspan="2" style="text-align:center;">'+vd.name+'</th></tr><tr><th>Jokowi-Amin</th><th>Prabowo-Sandi</th></tr></thead><tbody>' +
+              return  '<table onClick="goKP('+vd.id+')"><thead><tr><th colspan="2" style="text-align:center;">'+vd.name+'</th></tr><tr><th>Jokowi-Amin</th><th>Prabowo-Sandi</th></tr></thead><tbody>' +
                   '<tr><td>'+sPersen(vd.pas1, vd.pas1+vd.pas2)+'</td><td>' + sPersen(vd.pas2, vd.pas1+vd.pas2)+'</td></tr>' +
                   '<tr><td>'+toId(vd.pas1)+'</td><td>' + toId(vd.pas2)+'</td></tr>' +
               '<tr><td colspan="2" style="text-align:center;">Selisih: '+ toId(Math.abs(vd.pas1-vd.pas2)) +'</td></tr>' +
