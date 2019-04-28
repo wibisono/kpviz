@@ -165,7 +165,7 @@
           window.open('https://kawalpemilu.org/#pilpres:'+vd.id);
         }).on("mousemove", function(d){
 
-              var mouse = d3.mouse(svg.node()).map(function(d) {
+            var mouse = d3.mouse(svg.node()).map(function(d) {
                         return parseInt(d);
                     });
 
@@ -190,7 +190,7 @@
 
     function getTooltip(vd){
           if(vd){
-            if(!vd.pas1 && !vd.pas2) return "Belum ada data masuk untuk wilayah "+ d.properties.NAME_2;
+            if(!vd.pas1 && !vd.pas2) return "Belum ada data masuk untuk wilayah "+ vd.name;
               return  '<table><thead><tr><th colspan="2" style="text-align:center;">'+vd.name+'</th></tr><tr><th>Jokowi-Amin</th><th>Prabowo-Sandi</th></tr></thead><tbody>' +
                   '<tr><td>'+sPersen(vd.pas1, vd.pas1+vd.pas2)+'</td><td>' + sPersen(vd.pas2, vd.pas1+vd.pas2)+'</td></tr>' +
                   '<tr><td>'+toId(vd.pas1)+'</td><td>' + toId(vd.pas2)+'</td></tr>' +
